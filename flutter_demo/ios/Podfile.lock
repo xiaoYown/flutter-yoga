@@ -1,0 +1,21 @@
+PODS:
+  - Flutter (1.0.0)
+  - YogaRenderSDK (0.1.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - YogaRenderSDK (from `../../native/ios_sdk`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  YogaRenderSDK:
+    :path: "../../native/ios_sdk"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  YogaRenderSDK: 9ffa5202b4fac09f3690e69c34b97b76617212e8
+
+PODFILE CHECKSUM: 907188ed7bbdd694093d6d9700f3ed3de6b13fa2
+
+COCOAPODS: 1.16.2

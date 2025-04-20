@@ -1,12 +1,10 @@
 package com.example.flutterApplicationXv.flutter_demo
 
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -14,6 +12,19 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
+
+// Import the SDK (The actual import would be through Gradle/Maven)
+// We're adding the SDK class manually for this example
+import com.example.yogarendersdk.YogaRenderSDK
+// Quick hack to make the compiler aware of the class in the project
+// In a real project, this would be properly imported via Gradle
+class SdkHelper {
+    companion object {
+        fun getSdk(): YogaRenderSDK {
+            return YogaRenderSDK.getInstance()
+        }
+    }
+}
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.flutterApplicationXv/render"
@@ -51,16 +62,15 @@ class MainActivity : FlutterActivity() {
         )
     }
     
-    // 原生渲染方法
+    // 原生渲染方法 - 现在使用 SDK 实现
     private fun renderContent(backgroundColor: String, content: String): Boolean {
-        Log.d(TAG, "Android: 渲染内容 - 背景颜色: $backgroundColor, 内容: $content")
+        Log.d(TAG, "Android: 调用 SDK 渲染内容 - 背景颜色: $backgroundColor, 内容: $content")
         
-        // 这里可以进行实际的渲染操作，例如创建视图并添加到主窗口
-        // 由于此处仅为示例，我们只打印参数并返回成功
+        // 创建临时容器视图用于测试 SDK 渲染功能
+        val testContainer = FrameLayout(this)
         
-        // TODO: 第二阶段将在此处调用 SDK 的渲染方法
-        
-        return true
+        // 使用 SDK 渲染内容，而不是直接在这里实现渲染逻辑
+        return SdkHelper.getSdk().renderContent(testContainer, backgroundColor, content)
     }
 }
 
@@ -75,7 +85,6 @@ class NativeViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANCE) {
 // 原生视图实现
 class NativeView(private val context: Context, id: Int, private val creationParams: Map<String, Any>) : PlatformView {
     private val containerView: FrameLayout = FrameLayout(context)
-    private val textView: TextView = TextView(context)
     
     init {
         // 设置容器
@@ -84,46 +93,14 @@ class NativeView(private val context: Context, id: Int, private val creationPara
             ViewGroup.LayoutParams.MATCH_PARENT
         )
         
-        // 设置文本视图
-        textView.layoutParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        )
-        textView.textAlignment = TextView.TEXT_ALIGNMENT_CENTER
-        textView.gravity = android.view.Gravity.CENTER
-        
-        // 添加到容器
-        containerView.addView(textView)
-        
-        // 更新视图内容
-        updateViewContent()
-    }
-    
-    private fun updateViewContent() {
-        // 设置背景颜色
-        try {
-            val backgroundColor = creationParams["backgroundColor"] as? String ?: "#FFFFFF"
-            containerView.setBackgroundColor(parseColor(backgroundColor))
-        } catch (e: Exception) {
-            Log.e("NativeView", "背景颜色解析错误", e)
-            containerView.setBackgroundColor(Color.WHITE)
-        }
-        
-        // 设置内容
+        // 获取渲染参数
+        val backgroundColor = creationParams["backgroundColor"] as? String ?: "#FFFFFF"
         val content = creationParams["content"] as? String ?: "默认内容"
-        textView.text = "Native Render: $content"
         
-        Log.d("NativeView", "Android: 视图渲染完成 - viewId: $containerView")
-    }
-    
-    // 安全解析颜色字符串
-    private fun parseColor(colorString: String): Int {
-        return try {
-            Color.parseColor(colorString)
-        } catch (e: Exception) {
-            Log.w("NativeView", "颜色解析失败: $colorString, 使用默认白色")
-            Color.WHITE
-        }
+        // 使用 SDK 渲染内容，而不是直接在这里实现渲染逻辑
+        SdkHelper.getSdk().renderContent(containerView, backgroundColor, content)
+        
+        Log.d("NativeView", "Android: 使用 SDK 视图渲染完成 - viewId: $containerView")
     }
 
     override fun getView(): View {
